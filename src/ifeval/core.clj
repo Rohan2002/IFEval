@@ -24,9 +24,7 @@
 
 (defn construct-data
   "Combine prompt and instructions fields from input_data and response field from prompt_response.jsonl files respectively."
-  []
-  (def prompt-instructions (process-lines "resources/prompt_instructions.jsonl"))
-  (def prompt-response (process-lines "resources/prompt_response.jsonl"))
+  [prompt-instructions prompt-response]
   (loop [prompt-instructions-looper prompt-instructions
          prompt-response-looper prompt-response
          combined []]
@@ -34,15 +32,13 @@
       combined
       (let [[prompt-instructions & rest-prompt-instructions] prompt-instructions-looper
             [prompt-response & rest-prompt-response] prompt-response-looper]
-        (println prompt-response)
-        (println prompt-instructions)
-        (println (merge prompt-instructions (dissoc prompt-response :prompt)))
-        (println (conj [] (merge prompt-instructions (dissoc prompt-response :prompt))))
         (recur rest-prompt-instructions rest-prompt-response (conj combined (merge prompt-instructions (dissoc prompt-response :prompt))))))))
 
 
 
 (defn -main
   "IFEval main function"
-  [& args]
-  (construct-data))
+  [& args] 
+  (def prompt-instructions (process-lines "resources/prompt_instructions.jsonl"))
+  (def prompt-response (process-lines "resources/prompt_response.jsonl"))
+  (construct-data prompt-response prompt-response))
