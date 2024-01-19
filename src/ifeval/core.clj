@@ -24,21 +24,31 @@
 
 (defn construct-data
   "Combine prompt and instructions fields from input_data and response field from prompt_response.jsonl files respectively."
-  [prompt-instructions prompt-response]
-  (loop [prompt-instructions-looper prompt-instructions
-         prompt-response-looper prompt-response
-         combined []]
-    (if (and (empty? prompt-instructions-looper) (empty? prompt-response-looper))
-      combined
-      (let [[prompt-instructions & rest-prompt-instructions] prompt-instructions-looper
-            [prompt-response & rest-prompt-response] prompt-response-looper]
-        (recur rest-prompt-instructions rest-prompt-response (conj combined (merge prompt-instructions (dissoc prompt-response :prompt))))))))
+  []
+  (let
+   [prompt-instructions (process-lines "resources/prompt_instructions.jsonl")
+    prompt-response (process-lines "resources/prompt_response.jsonl")]
+    (loop [prompt-instructions-looper prompt-instructions
+           prompt-response-looper prompt-response
+           combined []]
+      (if (and (empty? prompt-instructions-looper) (empty? prompt-response-looper))
+        combined
+        (let [[prompt-instructions & rest-prompt-instructions] prompt-instructions-looper
+              [prompt-response & rest-prompt-response] prompt-response-looper]
+          (recur rest-prompt-instructions rest-prompt-response (conj combined (merge prompt-instructions (dissoc prompt-response :prompt)))))))))
 
-
+(defn unique-instructions-id-list
+  "Get the unique instruction-id(s) from the input data created from construct-data function."
+  [data]
+  (->>
+   (map #(get % :instruction_id_list) data)
+   (flatten)
+   (set)
+   (sort)
+   (reverse)
+   ))
 
 (defn -main
   "IFEval main function"
-  [& args] 
-  (def prompt-instructions (process-lines "resources/prompt_instructions.jsonl"))
-  (def prompt-response (process-lines "resources/prompt_response.jsonl"))
-  (construct-data prompt-response prompt-response))
+  [& args]
+  (construct-data))

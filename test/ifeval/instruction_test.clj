@@ -72,3 +72,15 @@
 (deftest test-ifeval-rule10
   (testing "IFeval rule 10. Check if postscript P.P.S exist at the end of the response"
     (is (postscript-detect? "This is A.\n\nThat is B.\n\nP.P.S Those is C." "P.P.S"))))
+
+(deftest test-ifeval-rule11
+  (testing "IFeval rule 11. Check if corpus has at least 5 [text] placeholders"
+    (is (placeholders-detect? "This is [text]. He is [text]. [text] [text] [text]" "[text]" 5))))
+
+(deftest test-ifeval-rule13
+  (testing "IFeval rule 11. Check if corpus has a title."
+    (is (contain-title? "This is <<title one>>.")))
+  (testing "IFeval rule 11. Check if corpus has no title."
+   (is (not (contain-title? "This is <<title one>>>."))))
+  (testing "IFeval rule 11. Check if corpus has no title 2."
+   (is (not (contain-title? "This is foo.")))))
