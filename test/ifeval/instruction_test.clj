@@ -2,6 +2,61 @@
   (:require [clojure.test :refer :all]
             [ifeval.instructions :refer :all]))
 
-(deftest b-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest test-ifeval-rule1
+  (testing "IFeval rule 1. Keywords that exist in Corpus of text."
+    (is (= (keywords-contain? "This is b." ["is"]) #{"is"})))
+  )
+(deftest test-ifeval-rule2
+  (testing "IFeval rule 2. Text contains the keyword" \
+    (is (keywords-freq? "The cat is black bot" "black" 1)))
+    (testing "IFeval rule 2. Text does not contain the keyword" \
+      (is (keywords-freq? "The cat is black bot" "f" 0)))
+  )
+
+(deftest test-ifeval-rule3
+  (testing "IFeval rule 3. Text has 2 forbidden words" \
+    (is (keywords-forbidden? "The cat is black bot" ["black" "bot"] 2)))
+  (testing "IFeval rule 3. Text has 1 forbidden words" \
+      (is (keywords-forbidden? "The cat is black bot" ["none" "bot"] 1)))
+  (testing "IFeval rule 3. Text has 0 forbidden words" \
+      (is (keywords-forbidden? "The cat is black bot" ["none1" "none2" "none3"] 0))))
+
+(deftest test-ifeval-rule4
+  (testing "IFeval rule 4. Text has 2 b characters" \
+    (is (keywords-character-freq? "The cat is black bot" "b" 2))))
+
+(deftest test-ifeval-rule5
+  (testing "IFeval rule 5. English detection" \
+    (is (language-detect? "The cat is black" "en")))
+  (testing "IFeval rule 5. French detection" \
+    (is (language-detect? "Bien sûr! Voici une phrase en français" "fr")))
+  (testing "IFeval rule 5. Japanese detection" \
+    (is (language-detect? "もちろんです" "ja"))))
+
+(deftest test-ifeval-rule6
+  (testing "IFeval rule 6. Check if corpus has 4 paragraphs" \
+    (is (num-paragraphs? "a***b***c***d" 4))))
+
+(deftest test-ifeval-rule7
+  (testing "IFeval rule 7. Check if corpus has exactly {N} words."
+    (is (num-words? "This is A. This is B." "at least" 6)))
+  (testing "IFeval rule 7. Check if corpus has at least {N} words."
+    (is (num-words? "This is A. This is B." "at least" 3)))
+  (testing "IFeval rule 7. Check if corpus has at most {N} words."
+    (is (num-words? "This is A. This is B." "at most" 100)))
+  (testing "IFeval rule 7. Check if corpus has less than {N} words."
+    (is (not (num-words? "This is A. This is B." "less than" 1))))
+  (testing "IFeval rule 7. Check if corpus has more than {N} words."
+    (is (not (num-words? "This is A. This is B." "more than" 6)))))
+
+(deftest test-ifeval-rule8
+  (testing "IFeval rule 8. Check if corpus has exactly 2 sentences."
+    (is (num-sentences? "This is A. This is B." "exactly" 2)))
+  (testing "IFeval rule 8. Check if corpus has at least 2 sentences."
+    (is (num-sentences? "This is A. This is B." "at least" 2)))
+  (testing "IFeval rule 8. Check if corpus has at most {N} sentences."
+    (is (num-sentences? "This is A. This is B." "at most" 2)))
+  (testing "IFeval rule 8. Check if corpus has less than {N} sentences."
+    (is (not (num-sentences? "This is A. This is B." "less than" 2))))
+  (testing "IFeval rule 8. Check if corpus has more than {N} sentences."
+    (is (not (num-sentences? "This is A. This is B." "more than" 2)))))

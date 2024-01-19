@@ -12,6 +12,11 @@
   [keywords]
   (walk/keywordize-keys keywords))
 
+(defn replace-punctuation-with-space 
+  "Remove punctuations from the string"
+  [s]
+  (clojure.string/replace s #"\p{Punct}" ""))
+
 (defn decouple-corpus
   "Get the tokens (words) and sentences from a corpus of text. 
      Using the Stanford Core NLP library to do this task because
@@ -24,7 +29,7 @@
    ((dk/->pipeline {:annotators ["tokenize" "ssplit"]}) corpus)
    (dk/recur-datafy)))
 
-(def optimized-decouple-corpus
+(def optimized-decouple-corpus    
   "Memoize version of decouple-corpus"
   (memoize decouple-corpus))
 
@@ -32,7 +37,7 @@
   "Return a vector of words extracted from a corpus"
   [corpus]
   (->>
-   (get (optimized-decouple-corpus corpus) :tokens)
+   (get (optimized-decouple-corpus (replace-punctuation-with-space corpus)) :tokens)
    (map #(get % :original-text))))
 
 (defn get-sentences-from-corpus
@@ -65,8 +70,12 @@
 
 (defn keywords-forbidden?
   "Check if at least one keyword from keywords appears in corpus (IFeval rule 3) (Forbidden Words)"
-  [corpus forbidden-keywords]
-  (keywords-contain? corpus forbidden-keywords))
+  [corpus forbidden-keywords n]
+  (->
+   (count (keywords-contain? corpus forbidden-keywords))
+   (= n)
+   )
+  )
 
 (defn keywords-character-freq?
   "Check if corpus has n number of characters (IFeval rule 4) (Letter Frequency)"
@@ -107,14 +116,15 @@
   [corpus relation n]
   (->
    (count (get-words-from-corpus corpus))
-   ((get function-map relation) n)))
+   ((get function-map relation "exactly") n)))
 
 (defn num-sentences?
   "Check if corpus has \"at least\", \"at most\", \"less than\", \"more than\", \"exactly\" n sentences (IFEval rule 8) (Number Sentences)"
   [corpus relation n]
   (->
    (count (get-sentences-from-corpus corpus))
-   ((get function-map relation) n)))
+   ((get function-map relation "exactly") n))
+  )
 
 
 
