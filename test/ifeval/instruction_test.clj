@@ -4,14 +4,12 @@
 
 (deftest test-ifeval-rule1
   (testing "IFeval rule 1. Keywords that exist in Corpus of text."
-    (is (= (keywords-contain? "This is b." ["is"]) #{"is"})))
-  )
+    (is (= (keywords-contain? "This is b." ["is"]) #{"is"}))))
 (deftest test-ifeval-rule2
   (testing "IFeval rule 2. Text contains the keyword" \
     (is (keywords-freq? "The cat is black bot" "black" 1)))
-    (testing "IFeval rule 2. Text does not contain the keyword" \
-      (is (keywords-freq? "The cat is black bot" "f" 0)))
-  )
+  (testing "IFeval rule 2. Text does not contain the keyword" \
+      (is (keywords-freq? "The cat is black bot" "f" 0))))
 
 (deftest test-ifeval-rule3
   (testing "IFeval rule 3. Text has 2 forbidden words" \
@@ -60,3 +58,17 @@
     (is (not (num-sentences? "This is A. This is B." "less than" 2))))
   (testing "IFeval rule 8. Check if corpus has more than {N} sentences."
     (is (not (num-sentences? "This is A. This is B." "more than" 2)))))
+
+(deftest test-ifeval-rule9
+  (testing "IFeval rule 9. Check if corpus has 3 paragraph and 1st paragraph starts with This"
+    (is (num-paragraphs-with-starting-word? "This is A.\n\nThat is B.\n\nThose is C." 3 1 "This")))
+  (testing "IFeval rule 9. Check if corpus has 3 paragraph and 2nd paragraph starts with That"
+    (is (num-paragraphs-with-starting-word? "This is A.\n\nThat is B.\n\nThose is C." 3 2 "That")))
+  (testing "IFeval rule 9. Check if corpus has 3 paragraph and 3rd paragraph starts with Those"
+    (is (num-paragraphs-with-starting-word? "This is A.\n\nThat is B.\n\nThose is C." 3 3 "Those")))
+  (testing "IFeval rule 9. Check if corpus has 0 paragraph and 3rd paragraph starts with Those"
+    (is (not (num-paragraphs-with-starting-word? "" 0 3 "Those")))))
+
+(deftest test-ifeval-rule10
+  (testing "IFeval rule 10. Check if postscript P.P.S exist at the end of the response"
+    (is (postscript-detect? "This is A.\n\nThat is B.\n\nP.P.S Those is C." "P.P.S"))))

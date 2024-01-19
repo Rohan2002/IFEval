@@ -12,7 +12,7 @@
   [keywords]
   (walk/keywordize-keys keywords))
 
-(defn replace-punctuation-with-space 
+(defn replace-punctuation-with-space
   "Remove punctuations from the string"
   [s]
   (clojure.string/replace s #"\p{Punct}" ""))
@@ -29,7 +29,7 @@
    ((dk/->pipeline {:annotators ["tokenize" "ssplit"]}) corpus)
    (dk/recur-datafy)))
 
-(def optimized-decouple-corpus    
+(def optimized-decouple-corpus
   "Memoize version of decouple-corpus"
   (memoize decouple-corpus))
 
@@ -73,9 +73,7 @@
   [corpus forbidden-keywords n]
   (->
    (count (keywords-contain? corpus forbidden-keywords))
-   (= n)
-   )
-  )
+   (= n)))
 
 (defn keywords-character-freq?
   "Check if corpus has n number of characters (IFeval rule 4) (Letter Frequency)"
@@ -123,10 +121,24 @@
   [corpus relation n]
   (->
    (count (get-sentences-from-corpus corpus))
-   ((get function-map relation "exactly") n))
-  )
+   ((get function-map relation "exactly") n)))
 
+(defn num-paragraphs-with-starting-word?
+  "There should be {N} paragraphs. 
+   Paragraphs and only paragraphs are separated with each other by two line breaks. 
+   The {i}-th paragraph must start with word {first word}.
+   (IFEval rule 9) (Number Paragraphs + First Word in i-th Paragraph)"
+  [corpus n ith-paragraph-number first-word]
+  (let [paragraphs (get-paragraph-from-corpus corpus #"\n\n")
+        first-word-function (comp first get-words-from-corpus)]
+    (let [first-word-of-paragraphs (map first-word-function paragraphs)
+          nth-first-word (nth first-word-of-paragraphs (- ith-paragraph-number 1) 0)]
+      (and (= (count first-word-of-paragraphs) n) (= nth-first-word first-word)))))
 
-
-
+(defn postscript-detect?
+  "At the end of your response, please explicitly add a postscript starting with {postscript marker} (IFEval rule 10) (Postscript)"
+  [corpus postscript-marker]
+  (->
+   (last (get-paragraph-from-corpus corpus #"\n\n"))
+   (string/starts-with? postscript-marker)))
 
