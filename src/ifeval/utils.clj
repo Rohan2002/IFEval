@@ -78,3 +78,13 @@
    (get-words-from-corpus corpus)
    (filter #(= keyword %))
    (count)))
+
+(defn all-lowercase?
+  "Check if string s is all lowercase"
+  [s]
+  (= s (str/lower-case s)))
+
+(defn all-uppercase? 
+  "Check if string s is all uppercase"
+  [s]
+  (= s (str/upper-case s)))

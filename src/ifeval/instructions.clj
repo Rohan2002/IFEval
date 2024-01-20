@@ -75,12 +75,12 @@
    (last (utils/get-paragraph-from-corpus corpus #"\n\n"))
    (string/starts-with? postscript_marker)))
 
-"TODO: find the number of placeholders using the pattern [some place holder]"
+
 (defn placeholders-detect?
   "The response must contain at least {N} placeholders represented by square brackets, such as [address]. (IFEval rule 11) (Number Placeholder)"
   [corpus & {:keys [num_placeholders]}]
-  (->>
-   (utils/number-of-keyword-in-corpus corpus "[todo]")
+  (->
+   (count (re-seq #"\[.+?\]" corpus))
    ((get utils/function-map "at least") num_placeholders)))
 
 (defn bullets-detect?
@@ -128,37 +128,49 @@
 (defn two-responses?
   "Give two different responses. Responses and only responses should be separated by 6 asterisk symbols: ******. (IFeval rule 19) (Two Responses)"
   [corpus]
-  (= 1 1))
+   (let [spl (string/split corpus #"\*\*\*\*\*\*")]
+     (and (= (count spl) 2) (not= (nth spl 0) (nth spl 1)))
+     )
+  )
 
 (defn all-uppercase?
   "Your entire response should be in English, capital letters only. (IFeval rule 20) (All Uppercase)"
   [corpus]
-  (= 1 1))
+  (utils/all-uppercase? corpus))
 
 (defn all-lowercase?
   "Your entire response should be in English, and in all lowercase letters. No capital letters are allowed. (IFeval rule 21) (All Lowecase)"
   [corpus]
-  (= 1 1))
+  (utils/all-lowercase? corpus))
 
 (defn freq-all-capital-words?
   "In your response, words with all capital letters should appear at least / around / at most {N} times (IFeval rule 22) (Frequency of All Capital Words)"
   [corpus & {:keys [capital_relation capital_frequency]}]
-  (= 1 1))
+  (->>
+   (utils/get-words-from-corpus corpus)
+   (filter #(utils/all-uppercase? %))
+   (count)
+   ((get utils/function-map capital_relation "exactly") capital_frequency)
+   ))
 
 (defn ends-with-response?
   "Finish your response with this exact phrase {end phrase}. No other words should follow this phrase. (IFeval rule 23) (End Checker)"
   [corpus & {:keys [end_phrase]}]
-  (= 1 1))
+  (let [len_corpus (count corpus)
+        len_end (count end_phrase)]
+    (if (or (= len_corpus 0) (= len_end 0))
+      (= 1 0) ;; always false
+      (= (subs corpus (- len_corpus len_end) len_corpus) end_phrase))))
 
 (defn wrap-double-quotes?
   "Wrap your entire response with double quotation marks. (IFeval rule 24) (Quotation)"
   [corpus]
-  (= 1 1))
+  (and (string/starts-with? corpus "\"") (string/ends-with? corpus "\"")))
 
 (defn no-commas?
   "In your entire response, refrain from the use of any commas. (IFeval rule 25) (No Commas)"
   [corpus]
-  (= 1 1))
+  (= nil (string/index-of corpus ",")))
 
 (def mp-ins-func
   {"keywords:existence" {:function keywords-contain?, :rule-number 1}
