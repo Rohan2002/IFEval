@@ -24,8 +24,9 @@ Suppose we have a prompt, and there are ```N >= 1``` instructions defined in tha
 
 We check if the response strictly or loosely followed the prompt.
 
-Strictly: if at least one instruction was not followed then the response did NOT follow the prompt.
-Loosely: if at least one instruction was followed then the response did follow the prompt.
+Strictly followed: if at least one instruction was not followed then the response did NOT follow the prompt.
+
+Loosely followed: if at least one instruction was followed then the response did follow the prompt.
 
 ## Development
 
