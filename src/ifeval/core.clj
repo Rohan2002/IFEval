@@ -64,10 +64,11 @@
   "Take a single element from construct-data vector and check if response followed the instructions given in the request."
   [comparison data]
   (let [corpus (get data :prompt)
-        instructions (get data :function-arg)]
+        instructions (get data :function-arg)
+        apply-instructions (map (partial apply-instruction-function corpus) instructions)]
     (if (= comparison "loose")
-      (loose-comparsion (map (partial apply-instruction-function corpus) instructions))
-      (strict-comparsion (map (partial apply-instruction-function corpus) instructions)))))
+      (loose-comparsion apply-instructions)
+      (strict-comparsion apply-instructions))))
 
 (defn apply-instruction-function-to-entries
   "Take a multiple element from construct-data vector and check if response followed the instructions given in the request."
@@ -78,16 +79,15 @@
   "IFEval main function"
   [& args]
   (let
-   [mode (first args)]
-    (when (and (not= "loose" mode) (not= "strict" mode))
-      (println "Invalid arguements! loose or strict mode only allowed for IFEval comparison metric.")
-      (System/exit 0))
-    (let
-     [result     (->
-                  (construct-data)
-                  (apply-instruction-function-to-entries mode))
-      followed (filter identity result)]
-      (as->
-       (float (/ (count followed) (count result))) percentage
-       (* 100 percentage)
-       (println (str "The percentage of prompts followed with IFEval metric " mode " is " percentage "%."))))))
+   [data (construct-data)
+    loose-data  (apply-instruction-function-to-entries data "loose")
+    strict-data (apply-instruction-function-to-entries data "strict")]
+    (as->
+     (float (/ (count (filter identity loose-data)) (count loose-data))) percentage
+      (* 100 percentage)
+      (println (str "Prompt-level accuracy for loose IFEval metric is " percentage "%.")))
+
+    (as->
+     (float (/ (count (filter identity strict-data)) (count strict-data))) percentage
+      (* 100 percentage)
+      (println (str "Prompt-level accuracy for strict IFEval metric is " percentage "%.")))))
