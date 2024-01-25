@@ -90,6 +90,47 @@
   (testing "IFeval rule 11. Check if corpus has no title 2."
     (is (not (contain-title? "This is foo.")))))
 
+(deftest test-ifeval-rule-15
+
+  (testing "Testing highlight-n-sections?"
+    (is (highlight-n-sections? "This is *section 1*. This is *section 2*." :num_highlights 2))
+    (is (not (highlight-n-sections? "No highlighted sections here." :num_highlights 1)))
+    (is (highlight-n-sections? "One *highlighted section*." :num_highlights 1))
+    (is (highlight-n-sections? "*Section 1* *Section 2* *Section 3*" :num_highlights 3))
+    (is (not (highlight-n-sections? "Only *two* highlighted sections." :num_highlights 3)))
+    (is (not (highlight-n-sections? "This has *more than four* highlighted sections *in total*." :num_highlights 4)))
+    (is (not (highlight-n-sections? "No highlighting at all." :num_highlights 1)))))
+
+(deftest test-ifeval-rule16
+  (testing "Testing multiple-sections?"
+    (is (multiple-sections? "Section 1 X Section 2 X Section 3" :section_spliter "Section" :num_sections 3))
+    (is (not (multiple-sections? "Section 1 X Section 2 X Section 3" :section_spliter "Section" :num_sections 4)))
+    (is (not (multiple-sections? "Single Section" :section_spliter "Section" :num_sections 2)))
+    (is (multiple-sections? "Section 1 X Section 2" :section_spliter "Section" :num_sections 2))
+    (is (multiple-sections? "Section 1 X" :section_spliter "Section" :num_sections 1))
+    (is (not (multiple-sections? "Section 1 X Section 2" :section_spliter "Random" :num_sections 2)))))
+
+(deftest test-ifeval-rule17
+  (testing "Testing is-json?"
+    (is (is-json? "{\"key\": \"value\"}"))
+    (is (not (is-json? "Not a valid JSON")))
+    (is (is-json? "[1, 2, 3]"))
+    (is (not (is-json? "Invalid JSON {")))
+    (is (is-json? "{\"name\": \"John\", \"age\": 30}"))))
+
+(deftest test-ifeval-rule18
+  (testing "Testing repeat-request?"
+    (is (repeat-request? "Repeat this request without change. (IFeval rule 18) (Repeat Prompt)" :prompt_to_repeat "Repeat this request without change."))
+    (is (not (repeat-request? "Repeat this request without change. (IFeval rule 18) (Repeat Prompt)" :prompt_to_repeat "Repeat this request with a change.")))
+    (is (repeat-request? "Another request to repeat without change. (IFeval rule 18) (Repeat Prompt)" :prompt_to_repeat "Another request to repeat without change."))))
+
+(deftest test-ifeval-rule19
+  (testing "Testing two-responses?"
+    (is (two-responses? "Response 1 ****** Response 2"))
+    (is (not (two-responses? "Response 1 Response 2")))
+    (is (not (two-responses? "Single Response")))
+    (is (not (two-responses? "Response 1 ****** Response 2 ****** Response 3")))))
+
 (deftest test-ifeval-rule20
   (testing "Check if all-uppercase? works correctly true case."
     (is (all-uppercase? "THIS IS A.")))
@@ -98,11 +139,9 @@
 
 (deftest test-ifeval-rule21
   (testing "Check if all-lowercase? works correctly true case."
-    (is (all-lowercase? "this is a.")) 
-    )
+    (is (all-lowercase? "this is a.")))
   (testing "Check if all-lowercase? works correctly false case."
-    (is (not (all-lowercase? "This is a.")))) 
-  )
+    (is (not (all-lowercase? "This is a.")))))
 
 (deftest test-ifeval-rule22
   (testing "Check if freq-all-capital-words? works correctly 1"
@@ -110,8 +149,7 @@
   (testing "Check if freq-all-capital-words? works correctly 2"
     (is (freq-all-capital-words? "This IS A and b." :capital_relation "exactly" :capital_frequency 2)))
   (testing "Check if freq-all-capital-words? works correctly"
-    (is (freq-all-capital-words? "This is b." :capital_relation "at most" :capital_frequency 0))) 
-  )
+    (is (freq-all-capital-words? "This is b." :capital_relation "at most" :capital_frequency 0))))
 
 (deftest test-ifeval-rule23
   (testing "IFeval rule 23. Check string ends with a certain phrase. Test 1")

@@ -1,6 +1,8 @@
 (ns ifeval.instructions
-  (:require [clojure.string :as string]
+  (:require [cheshire.core :as ches]
             [clojure.set :as s]
+            [clojure.string :as string]
+            [clojure.string :as str]
             [ifeval.utils :as utils]))
 
 (defn keywords-contain?
@@ -102,31 +104,42 @@
    ((get utils/function-map "at least") 1)))
 
 (defn choose-from
-  "Answer with one of the following options: {options}. (IFEval rule 14) (Choose From)"
+  "Answer with one of the following options: {options}. (IFEval rule 14) (Choose From). This rule is vague, so I am skipping this one."
   [corpus]
   (= 1 1))
 
 (defn highlight-n-sections?
   "Highlight at least {N} sections in your answer with markdown, i.e. *highlighted section* (IFeval rule 15) (Min highlighted sections)"
   [corpus & {:keys [num_highlights]}]
-  (= 1 1))
+  (->
+   (re-seq #"\*.+?\*" corpus)
+   (count)
+   ((get utils/function-map "at least") num_highlights)))
 
 (defn multiple-sections?
   "Your response must have {N} sections. Mark the beginning of each section with {section splitter} X. (IFeval rule 16) (Multiple sections)"
   [corpus & {:keys [section_spliter num_sections]}]
-  (= 1 1))
+  (->
+   (re-pattern (str section_spliter " \\d"))
+   (re-seq corpus)
+   (count)
+   (= num_sections)))
 
 (defn is-json?
   "Is response in json format? (IFEval rule 17) (JSON Format)"
   [corpus]
-  (= 1 1))
+  (try
+    (ches/parse-string corpus true)
+    true
+    (catch Exception e
+      false)))
 
 (defn repeat-request?
   "First, repeat the request without change, then give your answer (do not say anything before repeating the request; the request you need to 
    repeat does not include this sentence) 
    (IFeval rule 18) (Repeat Prompt)"
   [corpus & {:keys [prompt_to_repeat]}]
-  (= 1 1))
+  (str/starts-with? corpus prompt_to_repeat))
 
 (defn two-responses?
   "Give two different responses. Responses and only responses should be separated by 6 asterisk symbols: ******. (IFeval rule 19) (Two Responses)"
