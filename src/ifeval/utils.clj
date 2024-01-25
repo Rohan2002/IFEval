@@ -1,8 +1,6 @@
 (ns ifeval.utils 
-  (:require [cheshire.core :as ches]
-            [cld.core :as lang]
+  (:require [cld.core :as lang]
             [clojure.string :as str]
-            [clojure.walk :as walk]
             [dk.simongray.datalinguist :as dk]))
 
 (lang/default-init!)
