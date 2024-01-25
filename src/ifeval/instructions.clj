@@ -6,7 +6,10 @@
 (defn keywords-contain?
   "Return the keywords that exist in the corpus of text (IFeval rule 1) (Include Keywords)"
   [corpus & {:keys [keywords]}]
-  (s/intersection (set (utils/get-words-from-corpus corpus)) (set (map name keywords))))
+  (->>
+   (s/intersection (set (utils/get-words-from-corpus corpus)) (set (map name keywords)))
+   (empty?)
+   (not)))
 
 (defn keywords-freq?
   "Check if keyword appears n times in corpus (IFeval rule 2) (Keyword Frequency)"
@@ -20,7 +23,7 @@
   "Check if at least one keyword from keywords appears in corpus (IFeval rule 3) (Forbidden Words)"
   [corpus & {:keys [forbidden_words]}]
   #_{:clj-kondo/ignore [:not-empty?]}
-  (not (empty? (keywords-contain? corpus :keywords forbidden_words))))
+  (keywords-contain? corpus :keywords forbidden_words))
 
 (defn keywords-character-freq?
   "Check if corpus has n number of characters (IFeval rule 4) (Letter Frequency)"
@@ -128,10 +131,8 @@
 (defn two-responses?
   "Give two different responses. Responses and only responses should be separated by 6 asterisk symbols: ******. (IFeval rule 19) (Two Responses)"
   [corpus]
-   (let [spl (string/split corpus #"\*\*\*\*\*\*")]
-     (and (= (count spl) 2) (not= (nth spl 0) (nth spl 1)))
-     )
-  )
+  (let [spl (string/split corpus #"\*\*\*\*\*\*")]
+    (and (= (count spl) 2) (not= (nth spl 0) (nth spl 1)))))
 
 (defn all-uppercase?
   "Your entire response should be in English, capital letters only. (IFeval rule 20) (All Uppercase)"
@@ -150,8 +151,7 @@
    (utils/get-words-from-corpus corpus)
    (filter #(utils/all-uppercase? %))
    (count)
-   ((get utils/function-map capital_relation "exactly") capital_frequency)
-   ))
+   ((get utils/function-map capital_relation "exactly") capital_frequency)))
 
 (defn ends-with-response?
   "Finish your response with this exact phrase {end phrase}. No other words should follow this phrase. (IFeval rule 23) (End Checker)"

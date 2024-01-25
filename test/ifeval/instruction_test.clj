@@ -4,7 +4,7 @@
 
 (deftest test-ifeval-rule1
   (testing "IFeval rule 1. Keywords that exist in Corpus of text."
-    (is (= (keywords-contain? "This is b." :keywords ["is"]) #{"is"}))))
+    (is (= (keywords-contain? "This is b." :keywords ["is"]) true))))
 
 (deftest test-ifeval-rule2
   (testing "IFeval rule 2. Text contains the keyword" \
