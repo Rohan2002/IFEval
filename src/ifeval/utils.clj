@@ -12,10 +12,6 @@
   [text]
   (first (lang/detect text)))
 
-(defn keywords-to-clojure-key
-  [keywords]
-  (walk/keywordize-keys keywords))
-
 (defn replace-punctuation-with-space
   "Remove punctuations from the string"
   [s]
@@ -66,11 +62,6 @@
   [corpus divider]
   (str/split corpus divider))
 
-(defn language-map
-  "Parse language.json into clojure map"
-  []
-  (walk/keywordize-keys (ches/parse-string (slurp "resources/languages.json"))))
-
 (defn number-of-keyword-in-corpus
   "Count how many times keyword occurs in corpus"
   [corpus keyword]
@@ -88,3 +79,5 @@
   "Check if string s is all uppercase"
   [s]
   (= s (str/upper-case s)))
+
+(def dev-null-function (fn [& args]))
